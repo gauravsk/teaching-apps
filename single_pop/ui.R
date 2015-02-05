@@ -1,6 +1,7 @@
 ##############################
 # Single population dynamics #
 ##############################
+library(shinythemes) # make things look pretty
 
 # ui.R file for Shiny app
 # gaurav kandlikar, gkan@umd.edu
@@ -8,6 +9,7 @@ library(dygraphs)
 
 # start defining the page
 shinyUI(fluidPage(
+  theme = shinytheme("flatly"),
   
   tags$div(class="table", checked=NA,
            list(
@@ -19,7 +21,7 @@ shinyUI(fluidPage(
   titlePanel("Modeling single population dynamics"),
   
   sidebarLayout(
-    sidebarPanel(
+    sidebarPanel(width=3,
       tabPanel(title="Single population dynamics",
                helpText(h3("Set parameters for single population growth")),
                
@@ -55,7 +57,7 @@ shinyUI(fluidPage(
                  tableOutput("table1")
         ),
         
-        tabPanel(title = "Plot2",
+        tabPanel(title = "Interactive plot",
                  h4("Plots!"),
                  dygraphOutput("Dy1")
         )

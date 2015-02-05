@@ -1,9 +1,9 @@
 library(deSolve) # package for solving diferential equation
 library(dygraphs) # package for interactive plots
 library(xts) # package for timeseries analysis
-######################################################## 
-# Global options - define the predator - prey function #
-######################################################## 
+########################################################## 
+# Global options - define the population growth function #
+########################################################## 
 
 growth <- function(time,init,params) {
   with (as.list(c(time,init,params)), {
@@ -37,7 +37,7 @@ shinyServer(
     
     output$UI1 <- renderUI({
       if (input$Density == 2){
-        numericInput("K",label=h6("Select a value for K (prey's carrying capacity)."),value=500,min=1)}
+        numericInput("K",label=h6("Select a value for K (carrying capacity)."),value=500,min=1)}
       else {""}
     })
     
