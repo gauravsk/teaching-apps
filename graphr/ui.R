@@ -2,6 +2,7 @@ shinyUI(fluidPage(
   titlePanel("graphr"),
   sidebarLayout(
     sidebarPanel(
+      helpText("I only take csv files for now!"),
       fileInput('file1', 'Choose file to upload',
                 accept = c('.csv')
       ),
@@ -14,11 +15,14 @@ shinyUI(fluidPage(
       htmlOutput("yrange"),
       
       htmlOutput("slope"),
+      htmlOutput('downloader'),
       tags$hr()
     ),
     mainPanel(
+ #     htmlOutput("text1"),
       tableOutput('contents'),
-      plotOutput("testplot")
+      plotOutput("plot", width = 500, height=500)
+      
     )
   )
 ))
