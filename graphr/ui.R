@@ -1,3 +1,4 @@
+library(shiny)
 shinyUI(fluidPage(
   titlePanel("graphr"),
   sidebarLayout(
@@ -19,7 +20,6 @@ shinyUI(fluidPage(
       tags$hr()
     ),
     mainPanel(
- #     htmlOutput("text1"),
       tableOutput('contents'),
       plotOutput("plot", width = 500, height=500)
       

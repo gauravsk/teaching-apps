@@ -63,7 +63,7 @@ shinyServer(function(input, output) {
     downloadButton("downloadPlot", "Download Plot!") 
   })
   
-  plotss <- reactive({    
+  plot2render <- reactive({    
     if (is.null(inFile()))
     return(NULL)
     df <- inDataFrame()
@@ -89,8 +89,34 @@ shinyServer(function(input, output) {
       eqn <- bquote(italic(y) == .(b0) + .(b1)*italic(x) * "," ~~ r^2 == .(r2))
       text(8, 0.5, eqn)
     }})
+  plot2print <- function(){    
+    if (is.null(inFile()))
+      return(NULL)
+    df <- inDataFrame()
+    y <- input$yaxis
+    x <- input$xaxis
+    
+    if (length(y) == 1) {plot(df[,y] ~ df[,x], xlab=input$xlab, ylab=input$ylab, pch = 19, type="b", main=input$plot_title)}
+    if (length(y) == 2) {
+      ymax <- max(max(df[,y[1]]), max(df[,y[2]]))
+      ymin <- min(min(df[,y[1]]), min(df[,y[2]]))
+      
+      plot(df[,y[1]] ~ df[,x], xlab=input$xlab, ylab=input$ylab, pch = 19, type="b", main=input$plot_title, ylim=c(ymin, ymax))
+      points(df[ ,y[2]] ~ df[ ,x], col="darkblue", pch=19, type = "b")
+    }
+    
+    # add slope if user asks for it
+    if (input$slope){
+      fit <- lm(df[ ,y[1]]~df[ ,x], data = df)
+      coefs <- coef(fit)
+      b0 <- round(coefs[1], 2)
+      b1 <- round(coefs[2], 2)
+      r2 <- round(summary(fit)$r.squared, 2)
+      eqn <- bquote(italic(y) == .(b0) + .(b1)*italic(x) * "," ~~ r^2 == .(r2))
+      text(8, 0.5, eqn)
+    }} 
   
-  output$plot <- renderPlot({plotss()})
+  output$plot <- renderPlot({plot2render()})
   
     
   output$downloadPlot <- downloadHandler(
@@ -100,35 +126,7 @@ shinyServer(function(input, output) {
         },
       content = function(filename) {
         png(filename)
-        
-        ######################
-        # Find a way to compress this
-        ######################
-        if (is.null(inFile()))
-          return(NULL)
-        df <- inDataFrame()
-        y <- input$yaxis
-        x <- input$xaxis
-        
-        if (length(y) == 1) {plot(df[,y] ~ df[,x], xlab=input$xlab, ylab=input$ylab, pch = 19, type="b", main=input$plot_title)}
-        if (length(y) == 2) {
-          ymax <- max(max(df[,y[1]]), max(df[,y[2]]))
-          ymin <- min(min(df[,y[1]]), min(df[,y[2]]))
-          
-          plot(df[,y[1]] ~ df[,x], xlab=input$xlab, ylab=input$ylab, pch = 19, type="b", main=input$plot_title, ylim=c(ymin, ymax))
-          points(df[ ,y[2]] ~ df[ ,x], col="darkblue", pch=19, type = "b")
-        }
-        
-        # add slope if user asks for it
-        if (input$slope){
-          fit <- lm(df[ ,y[1]]~df[ ,x], data = df)
-          coefs <- coef(fit)
-          b0 <- round(coefs[1], 2)
-          b1 <- round(coefs[2], 2)
-          r2 <- round(summary(fit)$r.squared, 2)
-          eqn <- bquote(italic(y) == .(b0) + .(b1)*italic(x) * "," ~~ r^2 == .(r2))
-          text(8, 0.5, eqn)
-        }
+        plot2print()
         dev.off()
       }
     )
