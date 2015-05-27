@@ -2,7 +2,8 @@
 # Define lagged logistic growth
 # defining a new custom function that can do exponential growth, logistic growth and lagged logistic growth. Function works, but need to make it shiny-compatible.
 # All encompassing single population function
-# single.pop <- function(N=10,time=500,k=-9999,tau=0,r=.2) {
+
+# growth <- function(N=10,time=500,k=-9999,tau=0,r=.2) {
 #   
 #   vect <- numeric()
 #   vect[1] <- N
