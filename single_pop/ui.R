@@ -10,27 +10,19 @@ library(dygraphs)
 # start defining the page
 shinyUI(fluidPage(
   theme = shinytheme("flatly"),
-  
-  tags$div(class="table", checked=NA,
-           list(
-             tags$td("Other apps in the series:"),
-             tags$td(tags$a(href="shiny.rstudio.com/tutorial", "Lotka-Volterra Competition")),
-             tags$td(tags$a(href="shiny.rstudio.com/tutorial", "Lotka-Volterra Predator-Prey"))
-           )
-  ),
+
   titlePanel("Modeling single population dynamics"),
   
   sidebarLayout(
-    sidebarPanel(width=3,
+    sidebarPanel(
       tabPanel(title="Single population dynamics",
                helpText(h3("Set parameters for single population growth")),
                
                br(),
                helpText(h4("Growth type")),
                radioButtons("Density", label="",
-                            choices = list("Density independent" = 1,
-                                           "Density dependent" = 2),
-                            selected = 1),
+                            choices = c("Density independent" = 1,
+                                           "Density dependent" = 2)),
                
                br(),
                helpText(h4("Set model parameters")),
@@ -39,7 +31,7 @@ shinyUI(fluidPage(
 
                # If users select "Prey carrying capacity" above, then generate the input option
                htmlOutput("UI1"),
-               
+               htmlOutput("UI2"),
                br(),
                numericInput("iter",label="Time steps to run model",value=100,min=2,max=9999)
                
