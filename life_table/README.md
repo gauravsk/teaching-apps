@@ -1,0 +1,1 @@
+Trying to build a shiny app that lets users enter parameters of a life table and see what happens to population growth
