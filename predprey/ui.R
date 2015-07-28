@@ -73,7 +73,16 @@ shinyUI(fluidPage(
         
         tabPanel(title = "Plots",
                  h4("Here are plots showing changes in populations"),
-                 plotOutput("plot1")
+                 fluidRow(
+                   column(width = 6,
+                          plotOutput("plot1", height = 400)),
+                   column(width = 6,
+                          plotOutput("plot2", height = 400, brush = brushOpts(
+                            id = "plot2_brush",
+                            resetOnNew = TRUE
+                          )))),
+                 fluidRow(plotOutput("plot3"))
+                 
         ),
         
         
