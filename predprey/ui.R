@@ -1,7 +1,6 @@
 ################################
 # Lotka Volterra Predator-Prey #
 ################################
-library(dygraphs)
 # ui.R file for Shiny app
 # gaurav kandlikar, gkan@umd.edu
 
@@ -88,14 +87,7 @@ shinyUI(fluidPage(
         
         tabPanel(title = "Tables",
                  h4("This table shows population sizes at each time step"),
-                 tableOutput("table1")),
-
-        
-        tabPanel(title = "Interactive plot",
-                h4("Testing interactive graphs"),
-                p("Wishlist: disassociate output with fake 'dates' "),
-                dygraphOutput("Dy1")
-      )
+                 tableOutput("table1"))
     )
   )
 )))

@@ -3,8 +3,6 @@
 # Gaurav Kandlikar, 2 Feb 2015
 
 library(deSolve) # package for solving diferential equation
-library(dygraphs) # package for time series plotting
-library(xts) # for time series
 
 ######################################################## 
 # Global options - define the predator - prey function #
@@ -155,41 +153,6 @@ shinyServer(
     ############################################
     #       interactive plot with dygraph      #
     ############################################
-    
-    output$Dy1<- renderDygraph({
-      pp.time <- seq(0,input$time,by=1)
-      
-      pp.params["r"] <- input$r  # intrinsic growth rate of the prey
-      pp.params["a"] <- input$a  # predation efficniency
-      pp.params["d"] <- input$d  # death rate of predator
-      pp.params["b"] <- input$b  # conversion efficiency
-      pp.init["N"]   <- input$N  # starting prey population size
-      pp.init["P"]   <- input$P  # starting predator population size
-      
-      # Check whether carry capacity has been defined and define appropriately
-      if (input$Prey_K == 2){
-        pp.params["prey_k"] <- input$K
-      }
-      if (input$Prey_K == 1){
-        pp.params["prey_k"] <- -9999
-      }
-      
-      # Run ode; save as 'lvout'; convert to a matrix to use dygraphs capabilities
-      lvout<-floor(as.data.frame(ode(func=lvpp,y=pp.init,parms=pp.params,times=pp.time)))
-      matrix <- matrix(nrow=nrow(lvout),ncol=2)
-      
-      matrix[,1] <- lvout$N
-      matrix[,2] <- lvout$P
-      
-      # Begin plotting!
-      
-      dygraph(xts(matrix, Sys.Date()+1:nrow(lvout)))%>% 
-        dyRoller(rollPeriod = 5)%>%
-        dyOptions(colors = RColorBrewer::brewer.pal(3, "Set2"))  %>%
-        dySeries("V1", label = "Prey population") %>%
-        dySeries("V2", label = "Pred population")
-      
-    })
     
   }
 )
