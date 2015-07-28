@@ -1,6 +1,6 @@
 # Lotka volterra predator prey shiny app
 # server.R
-# Gaurav Kandlikar, 2 Feb 2015
+# Gaurav Kandlikar, gkan@umd.edu
 
 library(deSolve) # package for solving diferential equation
 
@@ -34,11 +34,6 @@ lvpp <- function(pp.time,pp.init,pp.params) {
     # return the vectors as a list
     return(list(c(dNdt,dPdt)))
   })
-}
-# Define root function for steady state analysis
-rootfun <- function(Time, State, Pars) {
-  dstate <- unlist(lvpp(Time, State, Pars))
-  prod((dstate[2:3])) - 1e-4
 }
 
 ### Reactive code
@@ -122,7 +117,7 @@ shinyServer(
            ylab="Population Size",ylim=c(0,max(max(lvout$N),max(lvout$P))*1.25), cex.lab = 1.25)
       points(lvout$P~pp.time,col="red",type="l",lwd=1.5)
       legend(x="topright",col=c("black","red"),lty=1,legend=c("Prey","Predator"),bty="n",lwd=2)
-      
+      mtext(side = 3, line = 0, text = "I'm interactive! Brush an area over me to change axes of bottom graph")
     })
     
     output$plot3 <- renderPlot({
@@ -148,11 +143,6 @@ shinyServer(
         ranges$y <- NULL
       }
     })
-    
-    
-    ############################################
-    #       interactive plot with dygraph      #
-    ############################################
     
   }
 )
