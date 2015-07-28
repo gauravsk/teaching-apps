@@ -51,7 +51,9 @@ shinyUI(fluidPage(
     mainPanel(
       tabsetPanel(
         tabPanel(title = "Equations",
-                 p("Some background text on the model goes here"),
+                 h4("Model Introduction"),
+                 p("The Lotka-Volterra predator-prey model describes the population dynamics of a pair of species interacting as predator and prey. The basic model assumes that the prey population grows", em(a("exponentially", href = "http://gauravsk.shinyapps.io/single_pop")), "(i.e. without a carrying capacity) in the absence of the predator; in other words, predators are the only control on prey population in the basic model. Predator population growth rate is a function of prey availability, the 'conversion efficiency' of prey into predator (i.e. how many individuals of the prey are needed to make an additional member of the predator population), and some intrinsic death rate."),
+                 
                  h4("These are the equations behind the L-V predator prey model"),
                  p(withMathJax("$$ \\frac{dN}{dt} = rN - aNP $$")),
                  p(withMathJax("$$ \\frac{dP}{dt} = baNP - dP $$")),

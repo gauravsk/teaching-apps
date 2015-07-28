@@ -39,9 +39,8 @@ lvpp <- function(pp.time,pp.init,pp.params) {
 }
 # Define root function for steady state analysis
 rootfun <- function(Time, State, Pars) {
-  dstate <- unlist(lv(Time, State, Pars))
-  # assume equilibrium if last two results differ by less than 1e-3
-  sum(abs(dstate)) - 1e-3
+  dstate <- unlist(lvpp(Time, State, Pars))
+  prod((dstate[2:3])) - 1e-4
 }
 
 ### Reactive code
@@ -79,7 +78,9 @@ shinyServer(
       }
 
       # Return the table!
-      floor(as.data.frame(ode(func=lvpp,y=pp.init,parms=pp.params,times=pp.time)))
+      # floor(as.data.frame(lsodar(func=lvpp,y=pp.init,parms=pp.params,times=pp.time,rootfun=rootfun)))
+     floor(as.data.frame(ode(func=lvpp,y=pp.init,parms=pp.params,times=pp.time)))
+      
     })
 
     #####################
