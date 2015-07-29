@@ -32,7 +32,9 @@ shinyUI(fluidPage(
                    choices = list("Run until steady state" = 1,
                                   "Run for specified length" = 2),
                    selected = 1),
-      htmlOutput("UI1")
+      htmlOutput("UI1"),
+      actionButton("goButton", "Go!"),
+      downloadButton("downloadPlot", "Download Plot!")
       
     ),  
     

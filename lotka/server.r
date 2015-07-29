@@ -43,16 +43,19 @@ shinyServer(
     
     # Reactively generate initial conditions. Access later using init()
     init <- reactive ({
-      c("N1" = input$n1, "N2" = input$n2)
+      input$goButton
+      isolate(c("N1" = input$n1, "N2" = input$n2))
     })
     
     # Reactively generate the params list. Access later using params()
     params <- reactive({
-      c("r1" = 1, "r2" = 1, "K1" = as.numeric(input$k1), "K2" = as.numeric(input$k2), "a" = as.numeric(input$alpha), "b" = as.numeric(input$beta))
+      input$goButton
+      isolate(c("r1" = 1, "r2" = 1, "K1" = as.numeric(input$k1), "K2" = as.numeric(input$k2), "a" = as.numeric(input$alpha), "b" = as.numeric(input$beta)))
     })
     
     # Reactively generate the time. Access later using time()
     time <- reactive({
+      
       if (input$iter == 2){seq(0,input$steps,by=1)}
       else {seq(0,1000, by=1)}
     })
@@ -84,7 +87,7 @@ shinyServer(
     })
     
     # Generate the plots
-    output$plot1<- renderPlot({
+    output$plot1 <- renderPlot({
       init<- init()
       params <- params()
       time <- time()
@@ -96,6 +99,7 @@ shinyServer(
            ylim=c(0,max(params["K2"],params["K1"]/params["a"])*1.25),
            xlab  ="Species 1",ylab="Species 2",main="ZNGIs for Sp.1 and Sp.2",
            xaxs="i",yaxs="i",cex.axis=1.5,cex.lab=1.5,cex.main=1.5)
+      legend("topright", col = c("Blue", "Red"), lty = 1, legend = c("Species 1", "Species 2"), bty = "n")
       lines(x = c(params["K1"],0),y = c(0,params["K1"]/params["a"]),lwd=2,col="blue")
       lines(x = c(params["K2"]/params["b"], 0) ,y = c(0,params["K2"]),lwd=2,col="red")
       
@@ -113,8 +117,62 @@ shinyServer(
            type="l",lwd=2, col="blue",cex.axis=1.5,cex.lab=1.5,
            main="Population size vs time",cex.main=1.5)
       points(generated_df$N2,col="red",type="l",lwd=2)
-      
+      legend("topright", col = c("Blue", "Red"), lty = 1, legend = c("Species 1", "Species 2"), bty = "n")      
     })
+    
+    plot2save <- function(){
+      init<- init()
+      params <- params()
+      time <- time()
+      generated_df <- lvout()      
+      
+      par(mfrow=c(2,2))
+      # plot the Zero Net Growth Isoclines based on parameters above.
+      plot(1,type="n",xlim=c(0,max(params["K1"],params["K2"]/params["b"])*1.25),
+           ylim=c(0,max(params["K2"],params["K1"]/params["a"])*1.25),
+           xlab  ="Species 1",ylab="Species 2",main="ZNGIs for Sp.1 and Sp.2",
+           xaxs="i",yaxs="i",cex.axis=1.5,cex.lab=1.5,cex.main=1.5)
+      legend("topright", col = c("Blue", "Red"), lty = 1, legend = c("Species 1", "Species 2"), bty = "n")
+      lines(x = c(params["K1"],0),y = c(0,params["K1"]/params["a"]),lwd=2,col="blue")
+      lines(x = c(params["K2"]/params["b"], 0) ,y = c(0,params["K2"]),lwd=2,col="red")
+      
+      # plot the starting population size
+      points(x=init["N1"],y=init["N2"],cex=2,pch=20)
+      
+      # Plot out the results of the ODE. 
+      # First plot is for N vs P (sp1 v sp2)
+      plot(generated_df$N2~generated_df$N1,type="o",xlim=c(0,max(params["K1"],params["K2"]/params["b"])*1.25),
+           ylim=c(0,max(params["K2"],params["K1"]/params["a"])*1.25), main = "Trajectory of population sizes",xlab="Species 1", 
+           ylab="Species 2",cex.axis=1.5,cex.lab=1.5,cex.main=1.5, col=rainbow(nrow(generated_df)))
+      
+      # Second plot for N & P v Time
+      plot(generated_df$N1,ylim=c(0,max(max(generated_df$N1),max(generated_df))*1.25),ylab="Population size",
+           type="l",lwd=2, col="blue",cex.axis=1.5,cex.lab=1.5,
+           main="Population size vs time",cex.main=1.5)
+      points(generated_df$N2,col="red",type="l",lwd=2)
+      legend("topright", col = c("Blue", "Red"), lty = 1, legend = c("Species 1", "Species 2"), bty = "n")      
+    }
+    
+    param_text <- reactive({
+      init<- init()
+      params <- params()
+      
+      paste("K1 = ", params["K1"], ", K2 = ", params["K2"], ", r1 = ", params["r1"], ", r2 = ", params["r2"], ", Alpha = ", params["a"], ", Beta = ", params["b"], sep = "")
+    })
+    
+    output$downloadPlot <- downloadHandler(
+      filename = 
+        function() {
+          paste('plot-', Sys.Date(), '.png', sep='')
+        },
+      content = function(filename) {
+        png(filename, height = 500, width = 750)
+        par(mfrow = c(1,2), oma = c(2,0,0,0))
+        plot2save()
+        mtext(param_text(), side = 1, outer = TRUE)
+        dev.off()
+      }
+    )
     
   }
 )
