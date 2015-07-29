@@ -22,7 +22,7 @@ shinyUI(fluidPage(
                  br(),
                  helpText(h4("Set prey carrying capacity")),
                  radioButtons("Prey_K", label="",
-                              choices = list("No prey carring capacity" = 1,
+                              choices = list("No prey carrying capacity" = 1,
                                              "Set prey carrying capacity" = 2),
                               selected = 1),
                  # If users select "Prey carrying capacity" above, then generate the input option

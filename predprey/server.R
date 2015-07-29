@@ -102,8 +102,7 @@ shinyServer(
       lvout <- full_table()
       # Begin plotting!
       
-      # Panel A: Plot P vs N; draw in the starting N and P parameters, draw in the ZNGIs
-        plot(lvout$P~lvout$N,ylim=c(0,max(lvout$P)*1.25),xlim=c(0,max(lvout$N)*1.25),type="l",lwd=1.5,
+      plot(lvout$P~lvout$N,ylim=c(0,max(lvout$P)*1.25),xlim=c(0,max(lvout$N)*1.25),type="l",lwd=1.5,
            xlab="Prey population size",ylab="Predator population size", cex.lab = 1.25)
       points(x=pp.init["N"],y=pp.init["P"],col="red",pch=18,cex=1.75)
       
@@ -125,7 +124,7 @@ shinyServer(
            ylab="Population Size",ylim=c(0,max(max(lvout$N),max(lvout$P))*1.25), cex.lab = 1.25)
       points(lvout$P~pp.time,col="red",type="l",lwd=1.5)
       legend(x="topright",col=c("black","red"),lty=1,legend=c("Prey","Predator"),bty="n",lwd=2)
-      # mtext(side = 3, line = 0, text = "I'm interactive! Brush an area over me to change axes of bottom graph")
+      mtext(side = 3, line = 0, text = "I'm interactive! Brush an area over me to change axes of bottom graph")
     })
     plot3 <- reactive({      
       pp.time <- pp.time()
@@ -137,6 +136,34 @@ shinyServer(
       points(lvout$P~pp.time,col="red",type="l",lwd=1.5)
       legend(x="topright",col=c("black","red"),lty=1,legend=c("Prey","Predator"),bty="n",lwd=2)
     })
+    
+    plot2print <- function() {
+      pp.time <- pp.time()
+      pp.params <- pp.params()
+      pp.init <- pp.init()
+      lvout <- full_table()
+      par(mfrow = c(1,2))
+      
+      # Plot 1
+      plot(lvout$P~lvout$N,ylim=c(0,max(lvout$P)*1.25),xlim=c(0,max(lvout$N)*1.25),type="l",lwd=1.5,
+           xlab="Prey population size",ylab="Predator population size", cex.lab = 1.25)
+      points(x=pp.init["N"],y=pp.init["P"],col="red",pch=18,cex=1.75)
+      
+      abline(v=pp.params["d"]/(pp.params["b"]*pp.params["a"]))
+      if (pp.params["prey_k"] == -9999) {
+        abline(h=pp.params["r"]/pp.params["a"])
+      }
+      if (pp.params["prey_k"] != -9999) {
+        abline (b=-(pp.params["r"]/(pp.params["prey_k"]*pp.params["a"])), a = pp.params["r"]/pp.params["a"])
+      }
+      
+      # Plot 2
+      plot(lvout$N~pp.time,type="l",xlab="pp.time",lwd=1.5,
+           ylab="Population Size",ylim=c(0,max(max(lvout$N),max(lvout$P))*1.25), cex.lab = 1.25)
+      points(lvout$P~pp.time,col="red",type="l",lwd=1.5)
+      legend(x="topright",col=c("black","red"),lty=1,legend=c("Prey","Predator"),bty="n",lwd=2)
+      
+    }
     
     output$plot1<- renderPlot({plot1()})
     output$plot2 <- renderPlot({plot2()})
@@ -161,9 +188,8 @@ shinyServer(
         },
       content = function(filename) {
         png(filename, height = 500, width = 750)
-        par(mfrow = c(1,2), oma = c(2,0,0,0))
-        plot1()
-        plot2()
+        par(oma = c(2,0,0,0))
+        plot2print()
         mtext(param_text(), side = 1, outer = TRUE)
         dev.off()
       }
