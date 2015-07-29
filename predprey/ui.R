@@ -41,10 +41,12 @@ shinyUI(fluidPage(
                              label = "Choose a value for d (predator death rate)",
                              min = 0.01, max = 1, value=0.6, step = NULL),
                  sliderInput("b", 
-                             label = "Choose a value for b (conversion efficienct)",
+                             label = "Choose a value for b (conversion efficiency)",
                              min = 0.01, max = 1, value=.5, step = NULL),
                  
-                 numericInput("time",label="Number of time steps to run the model",value = 100, min=1)
+                 numericInput("time",label="Number of time steps to run the model",value = 100, min=1),
+                 actionButton("goButton", "Go!"),
+                 downloadButton("downloadPlot", "Download Plot!")
         )
       ),
     mainPanel(

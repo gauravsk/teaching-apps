@@ -53,15 +53,25 @@ shinyServer(
     
     # Global setup ----------
     pp.params <- reactive({
-      c("r" = input$r, "a" = input$a, "d" = input$d, "b" = input$b, "prey_k" = ifelse(input$Prey_K == 2, input$K, -9999))
+      input$goButton
+      isolate(c("r" = input$r, "a" = input$a, "d" = input$d, "b" = input$b, "prey_k" = ifelse(input$Prey_K == 2, input$K, -9999)))
     })
     
     pp.init <- reactive({
-      c("N" = input$N, "P" = input$P)
+      input$goButton
+      isolate(c("N" = input$N, "P" = input$P))
     })
     
     pp.time <- reactive({
-      seq(0,input$time,by=1)
+      input$goButton
+      isolate(seq(0,input$time,by=1))
+    })
+    
+    param_text <- reactive({
+      pp.params <- pp.params()
+      pp.init <- pp.init()
+      
+      paste("N = ", pp.init["N"], ", P = ", pp.init["P"], ", r = ", pp.params["r"], ", a = ", pp.params["a"], ", d = ", pp.params["d"], ", b = ", pp.params["b"], ", Prey K = ", ifelse(input$Prey_K == 2, pp.params["prey_k"], "None"), sep = "")
     })
     
     full_table<- reactive({
@@ -84,7 +94,8 @@ shinyServer(
 
     # Plots
     ranges <- reactiveValues(x = NULL, y = NULL)
-    output$plot1<- renderPlot({
+    
+    plot1 <- reactive({
       pp.time <- pp.time()
       pp.params <- pp.params()
       pp.init <- pp.init()
@@ -92,12 +103,10 @@ shinyServer(
       # Begin plotting!
       
       # Panel A: Plot P vs N; draw in the starting N and P parameters, draw in the ZNGIs
-      ranges <- reactiveValues(x = NULL, y = NULL)
-      
-      plot(lvout$P~lvout$N,ylim=c(0,max(lvout$P)*1.25),xlim=c(0,max(lvout$N)*1.25),type="l",lwd=1.5,
+        plot(lvout$P~lvout$N,ylim=c(0,max(lvout$P)*1.25),xlim=c(0,max(lvout$N)*1.25),type="l",lwd=1.5,
            xlab="Prey population size",ylab="Predator population size", cex.lab = 1.25)
       points(x=pp.init["N"],y=pp.init["P"],col="red",pch=18,cex=1.75)
-
+      
       abline(v=pp.params["d"]/(pp.params["b"]*pp.params["a"]))
       if (pp.params["prey_k"] == -9999) {
         abline(h=pp.params["r"]/pp.params["a"])
@@ -106,9 +115,8 @@ shinyServer(
         abline (b=-(pp.params["r"]/(pp.params["prey_k"]*pp.params["a"])), a = pp.params["r"]/pp.params["a"])
       }
       
-      })
-    
-    output$plot2 <- renderPlot({
+    })
+    plot2 <- reactive({      
       pp.time <- pp.time()
       pp.params <- pp.params()
       pp.init <- pp.init()
@@ -117,10 +125,9 @@ shinyServer(
            ylab="Population Size",ylim=c(0,max(max(lvout$N),max(lvout$P))*1.25), cex.lab = 1.25)
       points(lvout$P~pp.time,col="red",type="l",lwd=1.5)
       legend(x="topright",col=c("black","red"),lty=1,legend=c("Prey","Predator"),bty="n",lwd=2)
-      mtext(side = 3, line = 0, text = "I'm interactive! Brush an area over me to change axes of bottom graph")
+      # mtext(side = 3, line = 0, text = "I'm interactive! Brush an area over me to change axes of bottom graph")
     })
-    
-    output$plot3 <- renderPlot({
+    plot3 <- reactive({      
       pp.time <- pp.time()
       pp.params <- pp.params()
       pp.init <- pp.init()
@@ -129,8 +136,11 @@ shinyServer(
            ylab="Population Size",ylim=ranges$y, cex.lab = 1.25, xlim = ranges$x)
       points(lvout$P~pp.time,col="red",type="l",lwd=1.5)
       legend(x="topright",col=c("black","red"),lty=1,legend=c("Prey","Predator"),bty="n",lwd=2)
-      
     })
+    
+    output$plot1<- renderPlot({plot1()})
+    output$plot2 <- renderPlot({plot2()})
+    output$plot3 <- renderPlot({plot3()})
     
     observe({
       brush <- input$plot2_brush
@@ -143,6 +153,21 @@ shinyServer(
         ranges$y <- NULL
       }
     })
+    
+    output$downloadPlot <- downloadHandler(
+      filename = 
+        function() {
+          paste('plot-', Sys.Date(), '.png', sep='')
+        },
+      content = function(filename) {
+        png(filename, height = 500, width = 750)
+        par(mfrow = c(1,2), oma = c(2,0,0,0))
+        plot1()
+        plot2()
+        mtext(param_text(), side = 1, outer = TRUE)
+        dev.off()
+      }
+    )
     
   }
 )
